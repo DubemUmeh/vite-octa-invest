@@ -14,6 +14,6 @@ export default defineConfig({
     open: true,
   },
   build: {
-    outDir: 'build', // CRA outputs to 'build', keeping it consistent might be nice or just use default 'dist'
+    outDir: 'dist',
   }
 });
