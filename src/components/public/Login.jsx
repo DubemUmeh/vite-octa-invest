@@ -44,7 +44,7 @@ function Login() {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        setErrorMsg(err.detail || "Invalid email or password.");
+        setErrorMsg(err.error || err.detail || "Invalid email or password.");
         setLoading(false);
         return;
       }
@@ -62,7 +62,7 @@ function Login() {
       navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
-      setErrorMsg("Something went wrong. Try again later.");
+      setErrorMsg(error.message || "Failed to connect to server. Please try again later.");
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Share2, Copy } from 'lucide-react';
-import axios from 'axios';
+import { authFetch } from '../utils/authFetch';
 import '../styles/referral.css';
 
 function Referral() {
@@ -21,28 +21,21 @@ function Referral() {
   useEffect(() => {
     const fetchReferrals = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          console.warn("⚠️ No token found in localStorage.");
-          setLoading(false);
-          return;
+        setLoading(true);
+        // 1️⃣ Fetch referrals
+        const res = await authFetch("/api/user/referrals");
+        if (res.ok) {
+           const data = await res.json();
+           setReferredUsers(data.referrals || []);
         }
 
-        // 1️⃣ Fetch referrals
-        const res = await axios.get(
-          'https://api.heritageinvestmentgrup.com/api/user/referrals/', 
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setReferredUsers(res.data.referrals || []);
-
         // 2️⃣ Fetch user info to build referral link
-        const meRes = await axios.get(
-          'https://api.heritageinvestmentgrup.com/api/auth/me/', 
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        if (meRes.data && meRes.data.username) {
-          setReferralLink(`https://heritageinvestmentgrup.com/ref/${meRes.data.username}`);
+        const meRes = await authFetch("/api/auth/me");
+        if (meRes.ok) {
+           const data = await meRes.json();
+           if (data.username) {
+             setReferralLink(`${window.location.origin}/ref/${data.username}`);
+           }
         }
 
       } catch (err) {

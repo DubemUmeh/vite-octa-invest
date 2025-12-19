@@ -66,7 +66,8 @@ function Register() {
     }
 
     try {
-      const res = await authFetch("/api/auth/register/", {
+      const referrer = localStorage.getItem('referrer') || "";
+      const res = await authFetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -77,60 +78,20 @@ function Register() {
           last_name: form.full_name.split(" ").slice(1).join(" ") || "",
           phone: form.phone || "",
           country: form.country || "",
+          referrer: referrer
         }),
       });
 
       if (!res.ok) {
-        let err;
-        try {
-          err = await res.json();
-        } catch {
-          err = { message: "Server error. Please try again later." };
-        }
-
-        if (err.errors) {
-          const fieldFriendlyNames = {
-            email: "Email address",
-            password: "Password",
-            username: "Email address",
-            first_name: "First name",
-            last_name: "Last name",
-            phone: "Phone number",
-            country: "Country",
-          };
-
-          const friendlyMessages = Object.entries(err.errors)
-            .map(([field, msgs]) => {
-              const fieldName = fieldFriendlyNames[field] || field;
-              return msgs
-                .map((msg) => {
-                  if (msg.includes("This field may not be blank")) {
-                    return `${fieldName} is required.`;
-                  }
-                  if (msg.includes("already exists")) {
-                    return `This ${fieldName.toLowerCase()} is already in use.`;
-                  }
-                  if (msg.includes("valid email")) {
-                    return `Please enter a valid email address.`;
-                  }
-                  if (msg.includes("at least 8 characters")) {
-                    return `Password must be at least 8 characters long.`;
-                  }
-                  if (msg.includes("too common")) {
-                    return `Please choose a stronger password.`;
-                  }
-                  if (msg.includes("entirely numeric")) {
-                    return `Password cannot be entirely numbers.`;
-                  }
-                  return `${fieldName}: ${msg}`;
-                })
-                .join(" ");
-            })
-            .join("\n");
-
-          setErrorMsg(friendlyMessages);
+        const err = await res.json().catch(() => ({}));
+        
+        // Prioritize the standardized 'error' key from server
+        if (err.error) {
+          setErrorMsg(err.error);
         } else if (err.message) {
           setErrorMsg(err.message);
+        } else if (err.detail) {
+          setErrorMsg(err.detail);
         } else {
           setErrorMsg("Registration failed. Please check your details and try again.");
         }
@@ -148,7 +109,7 @@ function Register() {
       setTimeout(() => navigate("/dashboard"), 2000);
     } catch (error) {
       console.error("Register error:", error);
-      setErrorMsg("Something went wrong. Please try again later.");
+      setErrorMsg(error.message || "Failed to connect to server. Please try again later.");
     } finally {
       setLoading(false);
     }

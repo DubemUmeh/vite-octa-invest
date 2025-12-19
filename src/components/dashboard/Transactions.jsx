@@ -9,7 +9,7 @@ function Transactions() {
 
   useEffect(() => {
     async function loadTransactions() {
-      const res = await authFetch("http://127.0.0.1:8000/api/transactions/");
+      const res = await authFetch("/api/transactions/");
       if (res.ok) {
         const data = await res.json();
         setTransactions(data);

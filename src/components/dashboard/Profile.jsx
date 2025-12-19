@@ -8,7 +8,7 @@ function Profile() {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const res = await authFetch("http://127.0.0.1:8000/api/auth/me/");
+        const res = await authFetch("/api/auth/me/");
         if (res.ok) {
           const data = await res.json();
           setProfile(data);

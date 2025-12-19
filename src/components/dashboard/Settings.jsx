@@ -26,14 +26,14 @@ function Settings() {
   }, []);
 
   async function loadMe() {
-    const res = await authFetch("/api/auth/me/");
+    const res = await authFetch("/api/auth/me");
     if (!res.ok) throw new Error("me failed");
     const data = await res.json();
     setMe(data);
   }
 
   async function loadDevices() {
-    const res = await authFetch("/api/auth/devices/");
+    const res = await authFetch("/api/auth/devices");
     if (!res.ok) throw new Error("devices failed");
     const data = await res.json();
     setDevices(data.devices || []);
@@ -48,14 +48,16 @@ function Settings() {
       last_name: form.get("last_name") || "",
       email: form.get("email") || "",
     };
-    const res = await authFetch("/api/auth/me/update/", {
+    const res = await authFetch("/api/auth/me/update", {
       method: "POST",
       body: JSON.stringify(body),
     });
     if (res.ok) {
+      alert("Profile updated successfully! ✅");
       await loadMe();
     } else {
-      alert("Failed to update profile");
+      const errorData = await res.json().catch(() => ({}));
+      alert(errorData.error || "Failed to update profile");
     }
   }
 
@@ -85,7 +87,7 @@ function Settings() {
   // Notifications (⚠️ In production, backend must send actual email/SMS based on these)
   async function handleToggleNotification(key, enabled) {
     if (!me) return;
-    const res = await authFetch("/api/auth/notifications/", {
+    const res = await authFetch("/api/auth/notifications", {
       method: "POST",
       body: JSON.stringify({ [key]: enabled }),
     });
@@ -98,7 +100,7 @@ function Settings() {
 
   // Devices
   async function handleLogoutDevice(deviceId) {
-    const res = await authFetch("/api/auth/devices/logout/", {
+    const res = await authFetch("/api/auth/devices/logout", {
       method: "POST",
       body: JSON.stringify({ device_id: deviceId }),
     });
@@ -112,7 +114,7 @@ function Settings() {
   // Delete account → now redirects to home page
   async function handleDeleteAccount() {
     if (!window.confirm("This action cannot be undone. Delete account?")) return;
-    const res = await authFetch("/api/auth/delete/", { method: "DELETE" });
+    const res = await authFetch("/api/auth/delete", { method: "DELETE" });
     if (res.ok) {
       alert("Goodbye! Your account has been deleted.");
       localStorage.clear();

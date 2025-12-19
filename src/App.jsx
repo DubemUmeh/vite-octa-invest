@@ -11,6 +11,7 @@ import { NotificationProvider } from "./components/dashboard/NotificationProvide
 import FloatingChat from "./components/dashboard/FloatingChat";
 import ForgotPassword from "./components/public/ForgotPasswprd";
 import ResetPassword from "./components/public/ResetPassword";
+import ReferrerHandler from "./components/public/ReferrerHandler";
 // import "../src/components/styles/global.css"
 
 
@@ -53,7 +54,7 @@ function AppContent() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} /> 
             <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
-
+            <Route path="/ref/:username" element={<ReferrerHandler />} />
           </Route>
 
           {/* Dashboard Pages */}
